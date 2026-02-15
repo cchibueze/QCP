@@ -65,6 +65,8 @@
 program QCP
 
 use input_processor
+use calculation_data
+use nuclei_aos_generator
 use Print_module
 implicit none
 
@@ -78,7 +80,11 @@ character (len=30) :: filename
     !=======================================================================================================================!
     filename = 'INPUT.dat'
     call inp_reader(filename)
-    !call set_eltot()
+    call get_nuclei()
+    call set_eltot()
+    call get_aos()
+    !call normalize_aos()
+    call print_mol_data()
     open(unit=77,file='OUTPUT.dat')
     
 
