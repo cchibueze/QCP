@@ -30,7 +30,7 @@ use molecular_data
 implicit none
 save
 private
-public :: get_nuclei, get_aos, print_mol_data
+public :: get_nuclei, get_aos, normalize_aos, print_mol_data
 
 !#######################################################################################################################!  
     contains
@@ -382,7 +382,22 @@ public :: get_nuclei, get_aos, print_mol_data
         
     end subroutine get_aos
     
+    !#######################################################################################################################! 
+    
+    subroutine normalize_aos()
+    use ao_data
+    use integrals
+    integer :: i,k
+    real (kind = 8) :: s_gg
+        do i=1,aotot
+            do k = 1,aos(i)%num_cont
+                s_gg = overlap(aos(i)%exp(k),aos(i)%shell,aos(i)%position, &
+                            aos(i)%exp(k),aos(i)%shell,aos(i)%position)
+                aos(i)%coef(k) = aos(i)%coef(k) / sqrt(s_gg)
+            enddo
+        enddo
 
+    end subroutine
 
     !#######################################################################################################################! 
     

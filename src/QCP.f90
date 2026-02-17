@@ -68,10 +68,19 @@ use input_processor
 use calculation_data
 use nuclei_aos_generator
 use Print_module
+
+
+use integral_tensors
+use result_data 
+
+use SCF_routines
+
+
 implicit none
 
 real (kind = 8) :: tf,ts
 character (len=30) :: filename
+integer :: ghf=0
 
     call CPU_TIME(ts)
 
@@ -83,11 +92,41 @@ character (len=30) :: filename
     call get_nuclei()
     call set_eltot()
     call get_aos()
-    !call normalize_aos()
+    call normalize_aos()
     call print_mol_data()
     open(unit=77,file='OUTPUT.dat')
     
-
+    !=======================================================================================================================!
+    !                                              STARTING A QCPCC CALCULATION                                             !
+    !=======================================================================================================================!
+     
+    allocate(H(aotot,aotot))
+    allocate(J_ee(aotot**4))
+    if (multiplicity == 1) then
+        allocate(Eig(aotot))
+        allocate(Cmo(aotot,aotot))
+    endif
+    max_iter=200
+    eps=1E-5
+    !=======================================================================================================================!
+    !                                       PERFORMING AN SINGLE POINT HF CALCULATION                                       !
+    !=======================================================================================================================!
+    if (sp == 1) then
+        if (multiplicity == 1) then
+            print *, 'Doing HF!'
+            call HFC(1)
+        else if (ghf == 1) then
+            print *, 'Doing GHF!'
+            allocate(Eig(aotot*2))
+            allocate(Cmo(aotot*2,aotot*2))
+            call GHFC(1)
+        else
+            print *, 'Doing UHF!'
+            allocate(Eiga(aotot),Eigb(aotot))
+            allocate(Ca(aotot,aotot),Cb(aotot,aotot))
+            call UHFC(1)
+        endif
+    endif
 
     call writelines(3)
     write(77,*)'FINAL END OF CALCULATION'
