@@ -460,7 +460,7 @@ contains
                 enddo
             enddo
         enddo
-        Vne = Vne * -2*pi/p*Zc
+        Vne = Vne * -(2*pi/p)*Zc
     end function nuclear_attraction 
     
     
