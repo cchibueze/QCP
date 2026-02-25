@@ -64,17 +64,23 @@
     
 program QCP
 
+!initialization + system setup
 use input_processor
 use calculation_data
 use nuclei_aos_generator
+
+!console + file output printing
 use Print_module
 
-
+!data storage
 use integral_tensors
 use result_data 
 
+!workhorses
 use SCF_routines
 
+!relativistic post hf corrections
+use Relativistic
 
 implicit none
 
@@ -128,6 +134,15 @@ integer :: ghf=0
         endif
     endif
 
+    !=======================================================================================================================!
+    !                                PERFORMING A SCALAR RELATIVISTIC CORRECTION CALCULATION                                !
+    !=======================================================================================================================!
+    if (src == 1) then 
+        print *, 'Calculating Scalar Relativistic Correction!!'
+        call Relativistic_correction()
+    endif
+
+    
     call writelines(3)
     write(77,*)'FINAL END OF CALCULATION'
     call cpu_time(tf)
