@@ -79,6 +79,11 @@ use result_data
 !workhorses
 use SCF_routines
 
+!post HF WFT methods
+use MP2_correlation
+use CI_correlation
+use CC_correlation
+
 !relativistic post hf corrections
 use Relativistic
 
@@ -132,6 +137,59 @@ integer :: ghf=0
             allocate(Ca(aotot,aotot),Cb(aotot,aotot))
             call UHFC(1)
         endif
+    endif
+
+    !=======================================================================================================================!
+    !                                      PERFORMING AN MP2 CORRELATION CALCULATION                                        !
+    !=======================================================================================================================!
+    if (mp2 == 1) then
+        if (multiplicity == 1) then
+            print *, 'Doing MP2!!'
+            call MP2_calc(1)
+        else
+            print *, 'Doing UMP2!!'
+            call UMP2_calc()
+        endif
+    endif
+    
+    !=======================================================================================================================!
+    !                                      PERFORMING A CC CORRELATION CALCULATION                                         !
+    !=======================================================================================================================!
+    if (cc == 1) then
+        
+        if (cctype == 'D') then
+            print *, 'Doing CCD!!'
+            call closed_shell_CCD_calc(1)
+        else if (cctype == 'SD') then
+            print *, 'Doing CCSD!!'
+            call closed_shell_CCSD_calc(1)
+        endif
+        
+    endif 
+    
+    !=======================================================================================================================!
+    !                                      PERFORMING A CI CORRELATION CALCULATION                                          !
+    !=======================================================================================================================!
+    if (cid == 1) then
+        print *, 'Doing Closed Shell CID!!'
+        call closed_shell_CID_calc(1)
+    endif
+    
+    !=======================================================================================================================!
+    !                                             PERFORMING A CISES CALCULATION                                            !
+    !=======================================================================================================================!
+    if (cises == 1) then
+        print *, 'Calculating CIS excitation spectra!!'
+        !call CIS_multiple_davidson_calc(1)
+        call closed_shell_CISES_calc(1) !
+    endif
+
+    !=======================================================================================================================!
+    !                                             PERFORMING A TD-HF CALCULATION                                            !
+    !=======================================================================================================================!
+    if (tdhf == 1) then
+        print *, 'Calculating TD-HF excitation spectra!!'
+        call closed_shell_TDHF_calc(1)
     endif
 
     !=======================================================================================================================!
