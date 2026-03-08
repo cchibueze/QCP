@@ -69,6 +69,10 @@ use input_processor
 use calculation_data
 use nuclei_aos_generator
 
+!gradient based geometry optimization
+use nuclear_derivatives
+use geometry_optimization
+
 !console + file output printing
 use Print_module
 
@@ -84,11 +88,15 @@ use MP2_correlation
 use CI_correlation
 use CC_correlation
 
+!vibrational frequency analysis
+use nuclear_vibration
+
 !relativistic post hf corrections
 use Relativistic
 
 implicit none
 
+real (kind = 8) :: Ef
 real (kind = 8) :: tf,ts
 character (len=30) :: filename
 integer :: ghf=0
@@ -119,6 +127,26 @@ integer :: ghf=0
     endif
     max_iter=200
     eps=1E-5
+    yNR= 1.0
+
+    
+    !=======================================================================================================================!
+    !                           PERFORMING A NON-LINEAR CONJUGENT GRADIENT GEOMETRY OPTIMIZATION                            !
+    !=======================================================================================================================!
+    if (ngc_go == 1) then
+        print *, 'Doing Non-Linear Conjugent Gradient Geometry Optimization!!'
+        call NGC(dh,Ef)
+    endif
+
+    !=======================================================================================================================!
+    !                                   PERFORMING A NEWTON-RAPHSON GEOMETRY OPTIMIZATION                                   !
+    !=======================================================================================================================!  
+    if (nr_go == 1) then
+        print *, 'Newton-Raphson Geometry Optimization!!'
+        call Newton_Raphson(dhH,Ef)
+    endif
+
+
     !=======================================================================================================================!
     !                                       PERFORMING AN SINGLE POINT HF CALCULATION                                       !
     !=======================================================================================================================!
