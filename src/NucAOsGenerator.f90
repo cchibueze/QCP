@@ -75,7 +75,7 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
     real (kind = 8) , intent(out) :: mass,charge
     integer , intent(out) :: nuc_type_no
     integer :: j
-        do j=1,10 
+        do j=1,30 
             if (trim(label)==trim(atomsymbol(j))) then
                 mass = atomic_mass(j) * 1836
                 charge = nuclear_charge(j)
