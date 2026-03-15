@@ -32,10 +32,10 @@ save
 !                                                    MODULE VARIABLES DELCARATION                                       !
 !=======================================================================================================================!
 
-character (len=30) , dimension(1:1) :: atomname=(/'HYDROGEN'/)!,'HELIUM','LITHIUM','BERYLLIUM','BORON','CARBON','NITROGEN','OXYGEN','FLUORINE','NEON',&
+character (len=12) , dimension(1:10) :: atomname=(/'HYDROGEN    ', 'HELIUM      ', 'LITHIUM     ', 'BERYLLIUM   ', 'BORON       ','CARBON      ','NITROGEN    ','OXYGEN      ','FLUORINE    ','NEON        '/)!,&
 !                                                   'SODIUM','MAGNESIUM','ALUMINIUM','SILICON','PHOSPHORUS','SULFUR','CHLORINE','ARGON','POTASSIUM','CALCIUM',&
 !                                                   'SCANDIUM','TITANIUM','VANADIUM','CHROMIUM','MANGANESE','IRON','COBALT','NICKEL','COPPER','ZINC'/) 
-character (len=30) , dimension(1:1) :: atomsymbol=(/'H'/)!,'He','Li','Be','B','C','N','O','F','Ne',&
+character (len=2) , dimension(1:10) :: atomsymbol=(/  'H ','He','Li','Be','B ','C ','N ','O ','F ','Ne'/)!,
 !                                                     'Na','Mg','Al','Si','P','S','Cl','Ar','K','Ca',&
 !                                                     'Sc','Ti','V','Cr','Mn','Fe','Co','Ni','Cu','Zn',&
 !                                                     'Ga','Ge','As','Se','Br','Kr','Rb','Sr','Y','Zr',&
