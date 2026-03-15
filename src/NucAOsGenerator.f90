@@ -70,13 +70,13 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
 
     subroutine get_nucleus_data(label,mass,charge,nuc_type_no,count) !GIVES NUCLEUS PROPERTIES FOR A CERTTAIN ATOMIC LABEL 
     use atomic_data
-    character (len=30) , intent(inout) :: label
+    character (len=12) , intent(inout) :: label
     character (len=30) , intent(out) :: count
     real (kind = 8) , intent(out) :: mass,charge
     integer , intent(out) :: nuc_type_no
     integer :: j
-        do j=1,30
-            if (label==atomsymbol(j)) then
+        do j=1,30 
+            if (trim(label)==trim(atomsymbol(j))) then
                 mass = atomic_mass(j) * 1836
                 charge = nuclear_charge(j)
                 nuc_type_no = j
@@ -149,7 +149,7 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
             nuc_type_no = nuclei(i)%type_no
             nuc_name = nuclei(i)%name
             nuc_pos = nuclei(i)%position
-            atom_name = atomname(nuc_type_no)
+            atom_name = trim(atomname(nuc_type_no))
             shell_count = 0
                         
             do while (read_line /= atom_name) 
