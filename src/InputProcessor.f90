@@ -100,8 +100,6 @@ save
         read(1,*)
         read(1,*) junk, tdhf
         read(1,*)
-        read(1,*) junk, lt
-        read(1,*)
         
         read(1,*) junk, molcharge
         read(1,*)
@@ -123,7 +121,7 @@ save
         allocate(labels(nuctot))
 
         rewind(1)
-        do i=1,36
+        do i=1,34
             read(1,*)
         enddo
     
