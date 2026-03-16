@@ -42,11 +42,9 @@ contains
     subroutine NGC(h,Ef)
     integer :: i,a,ii,pp,ll,kk
     real (kind = 8) , intent(in) :: h
-    real (kind = 8) :: E0,En,Ecur,labda,g0n,gkn,EHF,Ef,Vnn
+    real (kind = 8) :: E0,En,Ecur,labda,g0n,gkn,Ef
     real (kind = 8) , dimension(3*nuctot) :: g0,d0,gk_1,dk_1,gk,dk,dg,bk
     real (kind = 8) , dimension(10) :: labdas=(/1.0E0,1E-1,2E-1,3E-1,4E-1,5E-1,6E-1,7E-7,8E-1,3E-2/),E_list
-    real (kind = 8) , dimension(aotot,aotot) :: Cf
-    real (kind = 8) , dimension(aotot) :: Eig
 
 
     call smallblockheader('NON-LINEAR CONJUGENT GRADIENT GEOMETRY OPTIMIZATION')
@@ -218,7 +216,7 @@ contains
         call onelineheader('Final Geometry after NGC (Atomic Units)')
         write(77,*)''
         do i=1,nuctot
-            write(77,10), nuclei(i)%name,nuclei(i)%position
+            write(77,10) nuclei(i)%name,nuclei(i)%position
     10      format(1x,A9,3f14.5)        
         
         enddo
@@ -242,8 +240,7 @@ contains
     real (kind=8) , dimension(3*nuctot,3*nuctot) :: Hess,Hess_inv
     real (kind=8) , dimension(3*nuctot) :: g,Hess_inv_g
     real (kind=8) , intent(in) :: h
-    real (kind=8) ::E0,Ecur,Ef,EHF,gn,Vnn
-    real (kind = 8) , dimension(aotot,aotot) :: Cf
+    real (kind=8) ::E0,Ecur,Ef,gn
 
         call smallblockheader('NEWTON-RAPHSON GEOMETRY OPTIMIZATION')
         call writelines(2)
@@ -287,7 +284,7 @@ contains
         call onelineheader('Final Geometry after NR (Atomic Units)')
         write(77,*)''
         do i=1,nuctot
-            write(77,10), nuclei(i)%name,nuclei(i)%position
+            write(77,10) nuclei(i)%name,nuclei(i)%position
     10      format(1x,A9,3f14.5)        
         enddo   
         call writelines(2)

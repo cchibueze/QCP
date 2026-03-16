@@ -32,7 +32,7 @@ save
 !                                                    MODULE VARIABLES DELCARATION                                       !
 !=======================================================================================================================!
 integer :: max_iter,ngc_max_iter,NR_max_iter
-integer :: ngc_go,nr_go,sp,mp2,cid,cc,src,fc,cises,tdhf,lt
+integer :: ngc_go,nr_go,sp,mp2,cid,cc,src,fc,cises,tdhf 
 real (kind = 8) :: mg_ngc, mg_nr, eps, dh=1E-5, dhH=1E-5, yNR
 real (kind = 8) , allocatable , dimension(:) :: xcoords,ycoords,zcoords
 character (len=30) :: basis, cctype, go_wf
