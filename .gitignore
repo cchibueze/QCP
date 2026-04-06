@@ -44,5 +44,10 @@
 *DS_Store
 *.dat
 *.77
-*.bas
 *myapp
+
+*my_exe
+*json
+*.c
+*.cmake
+*.bin

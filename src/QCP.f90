@@ -106,14 +106,14 @@ integer :: ghf=0
     !=======================================================================================================================!
     !                                               INITIALIZE TOPOLOGY                                                     !
     !=======================================================================================================================!
-    filename = 'INPUT.dat'
+    filename = '../../INPUT.dat'
     call inp_reader(filename)
     call get_nuclei()
     call set_eltot()
     call get_aos()
     call normalize_aos()
     call print_mol_data()
-    open(unit=77,file='OUTPUT.dat')
+    open(unit=77,file='../../OUTPUT.dat')
     
     !=======================================================================================================================!
     !                                              STARTING A QCPCC CALCULATION                                             !
