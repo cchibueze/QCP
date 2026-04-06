@@ -20,6 +20,7 @@ Of course, one can alter the xyz coordinates and the keywords for different calc
 One must copy past the lines between (thus not including) the quotation marks: " "
 
 "
+
 basis sto-3g
 
 NGC 0
@@ -56,4 +57,5 @@ Units A
 
 H    0.000000    0.000000    0.000000
 H    0.000000    0.000000    0.740000
+
 "
