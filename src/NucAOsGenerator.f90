@@ -131,7 +131,7 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
     type (ao) , allocatable , dimension(:) :: aos_tmp
         aotot = 0
         allocate(aos(aotot))
-        file_name = trim(basis)//'.bas'
+        file_name = './../../bases/'//trim(basis)//'.bas'
 
         open(2, file = file_name, iostat=ios,status='old')
         if (ios/=0) then
@@ -406,7 +406,7 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
     use nuclei_data
     use ao_data
     integer :: a,b,no=0
-        open(unit=77,file='OUTPUT.dat')
+        open(unit=77,file='../../OUTPUT.dat')
         print *, eltot
         if ( (real(eltot)/2 - ceiling(real(eltot)/2) /= 0) .and. (real(multiplicity)/2 - ceiling(real(multiplicity)/2) /= 0) ) then
             write(77,*) 'Wrongly chosen multiplicity for the number of electrons.'

@@ -35,7 +35,7 @@ save
 type ao                        !atomic orbital type declaration
     character (len=30) :: name
     real (kind = 8) , dimension(1:3) :: position
-    real (kind = 8) , allocatable, dimension(:) :: exp,coef
+    real (kind = 8) , allocatable  :: exp(:),coef(:)
     integer , dimension(1:3) :: shell
     integer :: nucno, num_cont, nuc_type_no
 end type ao
