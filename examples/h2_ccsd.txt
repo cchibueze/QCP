@@ -1,0 +1,36 @@
+basis sto-3g
+
+NGC 0
+GOWF hf
+maxiter 100
+gradeps 0.0001
+
+NR  0
+maxiter 100
+gradeps 0.001
+
+SP  1
+
+MP2 0
+
+CID 0
+
+CC 1
+type SD
+
+SRC 0
+
+FC  0
+
+CISES 0
+
+THDF 0
+
+Charge 0
+
+Multiplicity 1
+
+Units A
+
+H    0.000000    0.000000    0.000000
+H    0.000000    0.000000    0.740000

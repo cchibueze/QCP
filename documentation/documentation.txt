@@ -1,0 +1,58 @@
+Documentation QCP.
+
+For the correct structure of the input file, INPUT.dat, see examples in the QCP/examples/ folder.
+It is important to note that most of the keywords have to be written, also if they are referring to a calculation, not being carried out!
+
+Choose a specific basis that exists in the QCP/bases/ folder.
+
+Adjust INPUT.dat such that the desired calculations are carried out.
+As can be seen from the example input files, many of these are enabled by changing a 0 to 1.
+These features comprise of the following.
+
+NGC.
+Nonlinear conjugent gradient calculation for a geometry optimization (GO).
+GOWF.
+The type of GO wavefunction (can be 'HF' or 'MP2')
+
+NR.
+A Newton-Raphson GO (only compatible with HF)
+
+gradeps.
+The tolerance of the norm of gradient after which a GO stops.
+
+maxiter.
+The maximum iterations for a GO calculation.
+
+SP.
+A single point Hartree-Fock (HF) calculation.
+
+MP2.
+An second-order Moeller-Plesset calculation.
+
+CID.
+A Configuration Interaction Doubles calculation.
+
+CC.
+A coupled-cluster calculation (Type can be D or SD, related to CCD or CCSD, respectively).
+
+SRC.
+Scalar relativistic corrections to the HF energy using a Pauli Hamiltonian.
+
+FC.
+A frequency calculation involving the Hessian to get vibrational normal modes.
+
+CISES.
+CI singles excited states for UV/Vis spectra.
+
+TD-HF.
+Time-dependent HF for UV/Vis spectra.
+
+Charge.
+The charge of the molecular system.
+
+Multiplicity.
+The spin multiplicity of a quantum chemical system.
+
+Units.
+The units of the molecular geometry (A or B, denoting either Angstroem or Bohr)
+
