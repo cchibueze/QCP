@@ -2,8 +2,8 @@
 Quantum Chemistry Package written by Chima Chibueze
 
 ### Requirements
-Make
-CMake
+Make,
+CMake,
 Fortran compiler (e.g. GNU, Flang, Intel etc...)
 
 ### Setup
