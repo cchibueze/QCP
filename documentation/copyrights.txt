@@ -1,0 +1,14 @@
+The two subroutines, chgm and sgamma, residing in QCP/src/, were written by a third-party.
+We acknowledge the authors here.
+
+
+Authors:
+    Original FORTRAN77 version by Shanjie Zhang, Jianming Jin.
+    FORTRAN90 version by John Burkardt.
+
+Reference:
+    Shanjie Zhang, Jianming Jin,
+    Computation of Special Functions,
+    Wiley, 1996,
+    ISBN: 0-471-11963-6,
+    LC: QA351.C45
