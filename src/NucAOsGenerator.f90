@@ -379,6 +379,15 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
         !close basis set file!
         close(2)
                
+
+        nao = aotot
+        nmo = nao
+        nocc = int(eltot/2.0d0)
+        nvir = nao - nocc
+        print *, 'number of AOs: ',nao
+        print *, 'number of MOs: ',nmo
+        print *, 'number of occupied orbitals: ',nocc
+        print *, 'number of virtual orbitals: ',nvir
         
     end subroutine get_aos
     
