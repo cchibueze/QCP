@@ -10,7 +10,7 @@ enable_language(Fortran C)
 set(FVERSION "-std=gnu")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FVERSION}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -Wall -g")
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -Wall -march=native -O3")
+set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -Wall -march=native -O3 -fopenmp")
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(LAPACK)

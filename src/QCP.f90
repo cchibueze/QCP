@@ -64,6 +64,10 @@
     
 program QCP
 
+!parallelization
+!$ use omp_lib
+use parallel
+
 !initialization + system setup
 use input_processor
 use calculation_data
@@ -101,7 +105,19 @@ real (kind = 8) :: tf,ts
 character (len=30) :: filename
 integer :: ghf=0
 
-    call CPU_TIME(ts)
+    !=======================================================================================================================!
+    !                                               SETUP PARALLELIZATION                                                   !
+    !=======================================================================================================================!
+
+    !specify the number of threads to use for parallelization
+    call set_omp_variables(8)
+    if (omp) then
+        !$ ts = omp_get_wtime()
+    else
+        call cpu_time(ts)
+    endif
+
+
 
     !=======================================================================================================================!
     !                                               INITIALIZE TOPOLOGY                                                     !
@@ -231,10 +247,19 @@ integer :: ghf=0
     
     call writelines(3)
     write(77,*)'FINAL END OF CALCULATION'
-    call cpu_time(tf)
+
+    if (omp) then
+        !$ tf = omp_get_wtime()
+    else
+        call cpu_time(tf)
+    endif
+
+    print *, 'Time taken by program:', tf - ts, 'seconds'
+
     write(77,32) "total run time:", &
     tf - ts, "seconds"
     32 format(1x,A15,f11.2,A8)
+
     write(77,*)'======================================================================='
     write(77,*)''
     close(77)

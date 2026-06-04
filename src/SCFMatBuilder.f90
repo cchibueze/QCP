@@ -30,6 +30,7 @@ module SCF_matrix_builder
 use integrals
 use molecular_data
 use ao_data
+
 implicit none
 save
 private :: S_ij_calc,T_ij_calc,Vne_ij_calc,J_ij_calc,K_ij_calc,D_ij_calc,DP_ij_calc,MV_ij_calc
@@ -502,10 +503,15 @@ contains
 
     subroutine J_ee_calc()
     use integral_tensors
+    !$ use omp_lib
     type (ao) :: ao1,ao2,ao3,ao4
     integer :: a,b,c,d,ab,cd,k,l,r,s
-    real (kind = 8) :: eri,t,tt,ts,tf!,electron_repulsion
-        !print(J_ee.shape)
+    real (kind = 8) :: eri!,t,tt,ts,tf!,electron_repulsion
+
+!$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,aos,J_ee) PRIVATE(a,b,c,d,ab,cd,ao1,ao2,ao3,ao4,k,l,r,s,eri)
+!$OMP DO SCHEDULE(DYNAMIC) COLLAPSE(1) 
+        ! we are using dynamic scheduling since the ab>=cd condition creates an imbalance in the workloads
+        ! furthermore, we are using collapse(1) because of the non-rectangular do-loop (a=b,aotot)
         do b=1,aotot
             do a=b,aotot
                 ab = (a*(a-1)/2)+b
@@ -518,8 +524,6 @@ contains
                             ao2 = aos(b)
                             ao3 = aos(c)
                             ao4 = aos(d)
-                                
-
 
                             eri = 0
                             do k=1,ao1%num_cont
@@ -549,7 +553,8 @@ contains
                 enddo
             enddo
         enddo
-
+!$OMP END DO
+!$OMP END PARALLEL
     end subroutine J_ee_calc
 
     
