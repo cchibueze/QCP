@@ -33,7 +33,8 @@ use molecular_data
 use integral_tensors
 use result_data
 use Integral_Transformation
-!use SCF_matrix_builder 
+use Timing
+
 implicit none
 save
 contains
@@ -45,12 +46,15 @@ contains
     
     integer :: i,j,k,l,a,b,c,d,ccc,O,V
     real (kind = 8) :: ei,ej,ea,eb,A2,B2,C2,D2,E2,dt2_amps_aibj
+    real (kind = 8) :: ts,te,ti,tf
     
     real (kind = 8) , allocatable , dimension(:,:,:,:) :: J_MO
     real (kind = 8) , allocatable, dimension(:,:,:,:) :: t2_amps
     real (kind = 8) , allocatable, dimension(:,:) :: E2oo, E2vv 
     real (kind = 8) , allocatable, dimension(:,:,:,:) :: Uvovo, B2oooo, C2vovo, D2vovo
     
+        call timer(ts)
+
         O = int(eltot/2) 
         V = aotot - O 
         if (output == 1) then
@@ -293,6 +297,9 @@ contains
             call twolinesfooter("CCD CALCULATION DONE")
             call writelines(8)
         endif
+
+        call timer(te)
+        print *, 'Time taken for CCD calculation: ', te-ts, ' seconds'
         
     end subroutine closed_shell_CCD_calc
     !#######################################################################################################################!

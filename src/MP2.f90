@@ -32,7 +32,7 @@ use result_data
 use molecular_data
 use Print_module
 use Parallel
-use omp_lib
+!$ use omp_lib
 use Timing
 
 implicit none
