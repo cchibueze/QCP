@@ -66,7 +66,8 @@ program QCP
 
 !parallelization
 !$ use omp_lib
-use parallel
+use Parallel
+use Timing
 
 !initialization + system setup
 use input_processor
@@ -111,11 +112,7 @@ integer :: ghf=0
 
     !specify the number of threads to use for parallelization
     call set_omp_variables(8)
-    if (omp) then
-        !$ ts = omp_get_wtime()
-    else
-        call cpu_time(ts)
-    endif
+    call timer(ts)
 
 
 
@@ -248,11 +245,7 @@ integer :: ghf=0
     call writelines(3)
     write(77,*)'FINAL END OF CALCULATION'
 
-    if (omp) then
-        !$ tf = omp_get_wtime()
-    else
-        call cpu_time(tf)
-    endif
+    call timer(tf)
 
     print *, 'Time taken by program:', tf - ts, 'seconds'
 

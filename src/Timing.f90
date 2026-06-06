@@ -6,7 +6,7 @@
 
 !=======================================================================================================================!
 !                                                                                                                       !
-!                                              PARALLELIZATION MODULE                                                   !
+!                                              TIMING MODULE                                                            !
 !                                                                                                                       !
 !=======================================================================================================================!
 
@@ -25,41 +25,28 @@
     
     
 !#######################################################################################################################!   
-module Parallel
+module Timing
+use Parallel
 implicit none
 save
 private
-public :: set_omp_variables, omp, num_threads
-
-!=======================================================================================================================!
-!                                                    MODULE VARIABLES DELCARATION                                       !
-!=======================================================================================================================!
-! openmp variables
-logical :: omp
-integer :: num_threads
+public :: timer
 
 !#######################################################################################################################!  
     contains
 
 
-    subroutine set_omp_variables(num_threads_in)
+    subroutine timer(time)
         !$ use omp_lib
-        integer, intent(in) :: num_threads_in
+        real(8), intent(out) :: time
 
-            omp = .false.
-            num_threads = num_threads_in
-            !$ omp = .true.
-            if (omp) then
-                print *, 'OpenMP parallelization is enabled!!'
-            else
-                print *, 'OpenMP parallelization is disabled!!'
-            endif
-            if (omp) then
-                !$ call omp_set_num_threads(num_threads)
-                !$ print *, 'Number of threads to be used for parallelization:', omp_get_num_threads()
-            endif
+        if (omp) then
+            !$ time = omp_get_wtime()
+        else
+            call cpu_time(time)
+        endif
             
-    end subroutine set_omp_variables
+    end subroutine timer
 
-end module parallel
+end module Timing  
 !#######################################################################################################################!type ao                        !atomic orbital type declaration

@@ -31,6 +31,10 @@ use integral_tensors
 use result_data
 use molecular_data
 use Print_module
+use Parallel
+use omp_lib
+use Timing
+
 implicit none
 save
 contains
@@ -39,7 +43,7 @@ contains
     real (kind = 8) , optional , intent(out) :: Eout
     integer :: O,V
     integer :: i,j,a,b,p,q,r,s
-    real (kind = 8) :: iajb,ibja
+    real (kind = 8) :: iajb,ibja, ti, tf
     real (kind = 8) , allocatable , dimension(:,:,:,:) :: uakt_tmp
     real (kind = 8) , allocatable , dimension(:,:,:,:) :: uakb_tmp
     real (kind = 8) , allocatable , dimension(:,:,:,:) :: iakb_tmp
@@ -47,12 +51,14 @@ contains
     real (kind = 8) , allocatable , dimension(:,:,:,:) :: ivkt_tmp
     real (kind = 8) , allocatable , dimension(:,:,:,:) :: ivjt_tmp
     real (kind = 8) , allocatable , dimension(:,:,:,:) :: iajt_tmp
-        
+
+    
         if (output == 1) then
             call smallblockheader('MP2 CORRELATION CALCULATION')
             call writelines(2)
             call onelineheader('Starting MP2 routine')
             call writelines(2)
+            call timer(ti)
         endif
         
         O = int(eltot/2)
@@ -199,6 +205,8 @@ contains
             call writelines(2)
             call twolinesfooter("MP2 CALCULATION DONE")
             call writelines(8)
+            call timer(tf)
+            print *, "Time taken for MP2 calculation: ",tf-ti," seconds"
         endif
     end subroutine MP2_calc
     
@@ -225,7 +233,7 @@ contains
     real (kind = 8) , allocatable :: uakt_tmp(:,:,:,:),uakb_tmp(:,:,:,:),iakb_tmp(:,:,:,:)
     real (kind = 8) , allocatable :: ivkt_tmp(:,:,:,:),ivjt_tmp(:,:,:,:),iajt_tmp(:,:,:,:)
 
-        call smallblockheader('Unrestricted Secoind-Order Möller-Plesset (UMP2) CORRELATION CALCULATION')
+        call smallblockheader('Unrestricted Secoind-Order Mï¿½ller-Plesset (UMP2) CORRELATION CALCULATION')
         call writelines(2)
         call onelineheader('Starting the UMP2 routine')
         call writelines(2)

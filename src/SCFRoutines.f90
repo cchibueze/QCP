@@ -28,6 +28,7 @@
 module SCF_routines
 use parallel
 !$ use omp_lib
+use Timing
 use result_data
 use integral_tensors
 use molecular_data
@@ -91,18 +92,10 @@ contains
         UT = transpose(U)   
         !print *, U
         
-        if (omp) then
-            !$ ts = omp_get_wtime()
-        else
-            call cpu_time(ts)
-        endif
+        call timer(ts)
         call J_ee_calc()
         print *, 'done with calculating two-electron integrals'
-        if (omp) then
-            !$ tf = omp_get_wtime()
-        else
-            call cpu_time(tf)
-        endif
+        call timer(tf)
         print *, 'Time taken to calculate two-electron integrals:', tf - ts, 'seconds'
 
 
