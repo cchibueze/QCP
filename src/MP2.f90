@@ -43,14 +43,10 @@ contains
     real (kind = 8) , optional , intent(out) :: Eout
     integer :: O,V
     integer :: i,j,a,b,p,q,r,s
-    real (kind = 8) :: iajb,ibja, ti, tf
-    real (kind = 8) , allocatable , dimension(:,:,:,:) :: uakt_tmp
-    real (kind = 8) , allocatable , dimension(:,:,:,:) :: uakb_tmp
-    real (kind = 8) , allocatable , dimension(:,:,:,:) :: iakb_tmp
+    real (kind = 8) :: iajb,ibja, ti, tf, tmp, ts, te
+    real (kind = 8) , allocatable , dimension(:,:,:,:) :: uakt_tmp, uakb_tmp, iakb_tmp
+    real (kind = 8) , allocatable , dimension(:,:,:,:) :: iajb_tmp, ivkt_tmp, ivjt_tmp, iajt_tmp
     real (kind = 8) :: ei,ej,ea,eb
-    real (kind = 8) , allocatable , dimension(:,:,:,:) :: ivkt_tmp
-    real (kind = 8) , allocatable , dimension(:,:,:,:) :: ivjt_tmp
-    real (kind = 8) , allocatable , dimension(:,:,:,:) :: iajt_tmp
 
     
         if (output == 1) then
@@ -58,31 +54,52 @@ contains
             call writelines(2)
             call onelineheader('Starting MP2 routine')
             call writelines(2)
-            call timer(ti)
+            call timer(ts)
         endif
         
         O = int(eltot/2)
         V = aotot - O
         Emp2 = 0
-        if (O > V) then
+
+        allocate(iajb_tmp(O,V,O,V))
+        iajb_tmp = 0
+
+        if (O >= V) then
+            
+            !print *, "O>=V"
+
             allocate(uakt_tmp(aotot,V,aotot,aotot),uakb_tmp(aotot,V,aotot,V),iakb_tmp(O,V,aotot,V))
-            !write(77,*) "O>V"
             uakt_tmp = 0
             uakb_tmp = 0
             iakb_tmp = 0
+
+            call timer(ti)
+            !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,O,V,uakt_tmp,Cmo,J_ee) PRIVATE(p,q,r,s,a,tmp)
+            !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(2) 
             do s=1,aotot
                 do r=1,aotot
                     do a=1,V
-                        do q=1,aotot
-                            do p=1,aotot
-                                uakt_tmp(p,a,r,s) = uakt_tmp(p,a,r,s) + Cmo(q,a+O)*J_ee(p + aotot*( (q-1) + aotot*( (r-1) + aotot*(s-1) ) ))
+                        do p=1,aotot
+                            tmp = 0
+                            do q=1,aotot
+                                tmp = tmp + Cmo(q,a+O)*J_ee(p + aotot*( (q-1) + aotot*( (r-1) + aotot*(s-1) ) ))
                             enddo
+                            uakt_tmp(p,a,r,s) = tmp
                         enddo
                     enddo
                 enddo
             enddo
+            !$OMP END DO
+            !$OMP END PARALLEL
+            call timer(tf)
+            print *, "Time taken for first transformation: ",tf-ti," seconds"
 
 
+
+            call timer(ti)
+            !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,O,V,uakb_tmp,Cmo,uakt_tmp) PRIVATE(p,r,s,a,b)
+            !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(1) 
+            !NOTE THAT WE NEED ALL VALUES OF S TO FOR EACH INSTANCE OF B; HENCE COLLAPSE(1) ONLY
             do b=1,V
                 do s=1,aotot
                     do r=1,aotot
@@ -94,8 +111,15 @@ contains
                     enddo
                 enddo
             enddo
-        
+            !$OMP END DO
+            !$OMP END PARALLEL
+            call timer(tf)
+            print *, "Time taken for second transformation: ",tf-ti," seconds"
+            
 
+            call timer(ti)
+            !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,O,V,iakb_tmp,Cmo,uakb_tmp) PRIVATE(p,r,a,b,i)
+            !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(2) 
             do b=1,V
                 do r=1,aotot
                     do a=1,V
@@ -107,45 +131,69 @@ contains
                     enddo
                 enddo
             enddo
-    
-            do i=1,O
-                ei = Eig(i)
-                do a=1,V
-                    ea = Eig(a+O)
-                    do j=1,O
-                        ej = Eig(j)
-                        do b=1,V
-                            eb = Eig(b+O)
-                            iajb = 0
-                            ibja = 0
-                            do r=1,aotot
-                                iajb = iajb + Cmo(r,j)*iakb_tmp(i,a,r,b)
-                                ibja = ibja + Cmo(r,j)*iakb_tmp(i,b,r,a)
+            !$OMP END DO
+            !$OMP END PARALLEL
+            call timer(tf)
+            print *, "Time taken for third transformation: ",tf-ti," seconds"
+
+
+
+            call timer(ti)
+            !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,O,V,iajb_tmp,Cmo,iakb_tmp) PRIVATE(r,i,a,j,b)
+            !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(2) 
+            do b=1,V
+                do j=1,O
+                    do r=1,aotot
+                        do a=1,V
+                            do i=1,O
+                                iajb_tmp(i,a,j,b) = iajb_tmp(i,a,j,b) + Cmo(r,j)*iakb_tmp(i,a,r,b)
                             enddo
-                            Emp2 = Emp2 + (2*(iajb**2) - iajb*ibja)/(ei+ej-ea-eb)
                         enddo
                     enddo
                 enddo
             enddo
+            !$OMP END DO
+            !$OMP END PARALLEL
+            call timer(tf)
+            print *, "Time taken for fourth transformation: ",tf-ti," seconds"
+
             deallocate(uakt_tmp,uakb_tmp,iakb_tmp)
+
         else
-            !write(77,*) "O =< V"
+
+            !print *, "V > O"
+
             allocate(ivkt_tmp(O,aotot,aotot,aotot),ivjt_tmp(O,aotot,O,aotot),iajt_tmp(O,V,O,aotot))
             ivkt_tmp=0
             ivjt_tmp=0
             iajt_tmp=0
+
+            call timer(ti)
+            !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,O,ivkt_tmp,Cmo,J_ee) PRIVATE(p,q,r,s,i,tmp)
+            !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(2) 
             do s=1,aotot
                 do r=1,aotot
                     do q=1,aotot
-                        do p=1,aotot
-                            do i=1,O
-                                ivkt_tmp(i,q,r,s) = ivkt_tmp(i,q,r,s) + Cmo(p,i)*J_ee(p + aotot*( (q-1) + aotot*( (r-1) + aotot*(s-1) ) ))
+                        do i=1,O       
+                            tmp = 0                 
+                            do p=1,aotot
+                                tmp = tmp + Cmo(p,i)*J_ee(p + aotot*( (q-1) + aotot*( (r-1) + aotot*(s-1) ) ))
                             enddo
+                            ivkt_tmp(i,q,r,s) = ivkt_tmp(i,q,r,s) + tmp
                         enddo
                     enddo
                 enddo
             enddo
-        
+            !$OMP END DO
+            !$OMP END PARALLEL
+            call timer(tf)
+            print *, "Time taken for first transformation: ",tf-ti," seconds"
+
+
+
+            call timer(ti)
+            !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,O,ivjt_tmp,Cmo,ivkt_tmp) PRIVATE(q,r,s,i,j)
+            !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(2) 
             do s=1,aotot
                 do j=1,O
                     do r=1,aotot
@@ -157,7 +205,15 @@ contains
                     enddo
                 enddo
             enddo
-        
+            !$OMP END DO
+            !$OMP END PARALLEL
+            call timer(tf)
+            print *, "Time taken for second transformation: ",tf-ti," seconds"
+
+
+            call timer(ti)
+            !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,O,V,iajt_tmp,Cmo,ivjt_tmp) PRIVATE(q,s,i,j,a)
+            !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(2) 
             do s=1,aotot
                 do j=1,O
                     do a=1,V
@@ -169,29 +225,61 @@ contains
                     enddo
                 enddo
             enddo
-                            
+            !$OMP END DO
+            !$OMP END PARALLEL
+            call timer(tf)
+            print *, "Time taken for third transformation: ",tf-ti," seconds"
+
+
+
+            call timer(ti)
+            !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,O,V,iajb_tmp,Cmo,iajt_tmp) PRIVATE(s,i,j,a,b)
+            !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(1) 
+            !NOTE THAT WE NEED ALL VALUES OF S TO FOR EACH INSTANCE OF B; HENCE COLLAPSE(1) ONLY
             do b=1,V
-                eb = Eig(b+O)
-                do j=1,O
-                    ej = Eig(j)
-                    do a=1,V
-                        ea = Eig(a+O)
-                        do i=1,O
-                            ei = Eig(i)
-                            iajb = 0
-                            ibja = 0
-                            do s=1,aotot
-                                iajb = iajb + Cmo(s,b+O)*iajt_tmp(i,a,j,s)
-                                ibja = ibja + Cmo(s,b+O)*iajt_tmp(j,a,i,s)
+                do s=1,aotot
+                    do j=1,O
+                        do a=1,V
+                            do i=1,O       
+                               iajb_tmp(i,a,j,b) = iajb_tmp(i,a,j,b) + Cmo(s,b+O)*iajt_tmp(i,a,j,s)
                             enddo
-                            Emp2 = Emp2 + (2*(iajb**2) - iajb*ibja)/(ei+ej-ea-eb)
                         enddo
                     enddo
                 enddo
             enddo
+            !$OMP END DO
+            !$OMP END PARALLEL
+            call timer(tf)
+            print *, "Time taken for fourth transformation: ",tf-ti," seconds"
+
             deallocate(ivkt_tmp,ivjt_tmp,iajt_tmp)
         endif
         
+        call timer(ti)
+        !$OMP PARALLEL DEFAULT(NONE) SHARED(O,V,iajb_tmp,Eig) PRIVATE(i,j,a,b,ei,ej,ea,eb,iajb,ibja) REDUCTION(+:Emp2)
+        !$OMP DO SCHEDULE (DYNAMIC) COLLAPSE(2)
+        do b=1,V
+            eb = Eig(b+O)
+            do j=1,O
+                ej = Eig(j)
+                do a=1,V
+                    ea = Eig(a+O)
+                    do i=1,O
+                        ei = Eig(i)
+                        iajb = iajb_tmp(i,a,j,b)
+                        ibja = iajb_tmp(i,b,j,a)
+                        Emp2 = Emp2 + (2*(iajb**2) - iajb*ibja)/(ei+ej-ea-eb)
+                    enddo
+                enddo
+            enddo
+        enddo   
+        !$OMP END DO
+        !$OMP END PARALLEL       
+        call timer(tf)
+        print *, "Time taken for energy calculation: ",tf-ti," seconds"
+
+        deallocate(iajb_tmp)
+
         if (present(Eout)) then
             Eout = EHF + Emp2
         endif
@@ -205,8 +293,8 @@ contains
             call writelines(2)
             call twolinesfooter("MP2 CALCULATION DONE")
             call writelines(8)
-            call timer(tf)
-            print *, "Time taken for MP2 calculation: ",tf-ti," seconds"
+            call timer(te)
+            print *, "Time taken for MP2 calculation: ",te-ts," seconds"
         endif
     end subroutine MP2_calc
     
