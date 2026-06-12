@@ -1,24 +1,24 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(my_project VERSION 0.1
-        DESCRIPTION "My Fortran program"
+        DESCRIPTION "My Fortran program with optional MPI"
         LANGUAGES Fortran)
-enable_language(Fortran C)
 
-# Currently setting the Fortran compiler to use -std=gnu, change this if you
-# want a specific standard
-set(FVERSION "-std=gnu")
-set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${FVERSION}")
+option(USE_MPI "Enable MPI support for the Fortran program" OFF)
+
+set(CMAKE_Fortran_STANDARD GNU)
+set(CMAKE_Fortran_STANDARD_REQUIRED ON)
+set(CMAKE_Fortran_EXTENSIONS OFF)
+
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -Wall -g")
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -Wall -march=native -O3 -fopenmp")
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -Wall -O2")
 
-find_package(LAPACK)
-if(LAPACK_FOUND)
-   set(lapackblas_libraries "${LAPACK_LIBRARIES}")
+if(USE_MPI)
+  find_package(MPI REQUIRED COMPONENTS Fortran)
 endif()
 
-# Source code
+find_package(LAPACK)
+
 add_subdirectory(src)
 
-install(TARGETS my_exe DESTINATION "bin")
+install(TARGETS my_exe DESTINATION bin)

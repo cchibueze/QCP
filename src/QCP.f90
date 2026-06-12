@@ -67,6 +67,10 @@ program QCP
 !parallelization
 !$ use omp_lib
 use Parallel
+#ifdef USE_MPI
+use mpi
+#endif
+
 use Timing
 
 !initialization + system setup
@@ -105,22 +109,30 @@ real (kind = 8) :: Ef
 real (kind = 8) :: tf,ts
 character (len=30) :: filename
 integer :: ghf=0
+#ifdef USE_MPI
+integer :: ierr
+#endif
 
     !=======================================================================================================================!
     !                                               SETUP PARALLELIZATION                                                   !
     !=======================================================================================================================!
 
-    !specify the number of threads to use for parallelization
+    !specify the number of threads or processes to use for parallelization
+#ifdef USE_MPI
+    call MPI_Init(ierr)
+    print *, 'hey'
+#endif
     call set_omp_variables(8)
     call timer(ts)
 
 
-
+    print *, 'hey'
     !=======================================================================================================================!
     !                                               INITIALIZE TOPOLOGY                                                     !
     !=======================================================================================================================!
     filename = '../../INPUT.dat'
     call inp_reader(filename)
+        print *, 'hey'
     call get_nuclei()
     call set_eltot()
     call get_aos()
@@ -256,5 +268,10 @@ integer :: ghf=0
     write(77,*)'======================================================================='
     write(77,*)''
     close(77)
+
+#ifdef USE_MPI
+    call MPI_Finalize(ierr)
+#endif
+
 end program QCP
 !#######################################################################################################################! 
