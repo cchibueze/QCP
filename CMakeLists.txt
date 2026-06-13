@@ -6,7 +6,7 @@ project(my_project VERSION 0.1
 
 #ONLY ALTER ON/OFF IN THE TWO LINES BELOW (BOTH ON NOT PERMITTED)
 option(USE_MPI "Enable MPI    support for the Fortran program" OFF)
-option(USE_OMP "Enable OpenMP support for the Fortran program" ON)
+option(USE_OMP "Enable OpenMP support for the Fortran program" OFF)
 
 #set(CMAKE_Fortran_STANDARD F95)
 set(FVERSION "-std=gnu")
