@@ -56,10 +56,6 @@ contains
     real (kind = 8) , dimension(aotot,aotot) :: S,V,VT,VTS,ss,ss_12,V_ss_12,U,UT
     real (kind = 8) , dimension(aotot,aotot) :: T,Vne,J,K,G,F,F_,C_,D,UTF
     logical :: do_ld = .false.
-#ifdef USE_MPI
-     integer :: ierr, rank
-     CALL MPI_COMM_RANK(MPI_COMM_WORLD, rank  , ierr)
-#endif
 
         Cmo = 0.0
         call Vnn_calc(Vnn)
@@ -103,14 +99,8 @@ contains
         call timer(ts)
         call J_ee_calc()
         call timer(tf)
-#ifdef USE_MPI
-        if (rank == 0) then
-#endif
-        print *, 'done with calculating two-electron integrals'
-        print *, 'Time taken to calculate two-electron integrals:', tf - ts, 'seconds'
-#ifdef USE_MPI
-        endif
-#endif
+
+        call printtext('Done calculate two-electron integrals in (s):', r=(tf - ts))
 
         ! bare nuclei Hamiltonian as initial Fock matrix
         

@@ -42,6 +42,32 @@ contains
             write(77,*)
         enddo
     end subroutine writelines
-    
+
+    subroutine printtext(string, int, r)
+#ifdef USE_MPI
+    use mpi
+#endif
+    real(8), intent(in), optional :: r
+    integer, intent(in), optional :: int
+    character (len=*), intent(in) :: string
+#ifdef USE_MPI
+    integer :: ierr, rank
+        CALL MPI_COMM_RANK(MPI_COMM_WORLD, rank  , ierr)
+        if (rank == 0) then
+#endif
+        if    (present(r)) then
+            print *, string, r
+        else if(present(int)) then
+            print *, string, int
+        else 
+            print *, string
+        endif
+#ifdef USE_MPI
+        else
+            continue
+        endif
+#endif
+    end subroutine
+
 end module Print_module
     

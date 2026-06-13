@@ -46,7 +46,7 @@ save
             write(*,*)'Error opening file, please check file' 
             stop
         endif
-            print *, 'hey'
+
         read(1,*) junk, basis
         basis = trim(adjustl(basis))
         read(1,*)

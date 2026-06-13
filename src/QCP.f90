@@ -120,19 +120,16 @@ integer :: ierr
     !specify the number of threads or processes to use for parallelization
 #ifdef USE_MPI
     call MPI_Init(ierr)
-    print *, 'hey'
 #endif
     call set_omp_variables(8)
     call timer(ts)
 
 
-    print *, 'hey'
     !=======================================================================================================================!
     !                                               INITIALIZE TOPOLOGY                                                     !
     !=======================================================================================================================!
     filename = '../../INPUT.dat'
     call inp_reader(filename)
-        print *, 'hey'
     call get_nuclei()
     call set_eltot()
     call get_aos()
@@ -177,7 +174,7 @@ integer :: ierr
     !=======================================================================================================================!
     if (sp == 1) then
         if (multiplicity == 1) then
-            print *, 'Doing HF!'
+            call printtext('Doing HF!')
             call HFC(1)
         else if (ghf == 1) then
             print *, 'Doing GHF!'
@@ -259,7 +256,7 @@ integer :: ierr
 
     call timer(tf)
 
-    print *, 'Time taken by program:', tf - ts, 'seconds'
+    call printtext('Time taken by program (s):', r=tf - ts)
 
     write(77,32) "total run time:", &
     tf - ts, "seconds"

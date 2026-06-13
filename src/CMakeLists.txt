@@ -5,7 +5,6 @@ set(MY_MODS AOData.f90 AtomData.f90 CalcData.f90 CC.f90 CI.f90
 
 add_library(mylib ${MY_MODS})
 add_executable(my_exe QCP.f90)
-
 target_link_libraries(my_exe PRIVATE mylib)
 
 target_compile_options(mylib PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-cpp>)

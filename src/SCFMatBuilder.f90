@@ -511,26 +511,15 @@ contains
     integer :: a,b,c,d,ab,cd,k,l,r,s
     real (kind = 8) :: eri!,t,tt,ts,tf!,electron_repulsion
 #ifdef USE_MPI
-    integer :: ierr, te, ts, dt
+    real (kind = 8) :: te, ts, dt
     real(kind = 8), allocatable :: J_ee_local(:)
+    integer :: ierr, rank, nprocs
 #endif
-    integer :: rank, nprocs
 
 #ifdef USE_MPI
-    CALL MPI_INIT(ierr)
     CALL MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
     CALL MPI_COMM_RANK(MPI_COMM_WORLD, rank  , ierr)
-#else
-    ! Fallback values for single-processor sequential runs
-    rank = 0
-    nprocs = 1
-#endif
-
-#ifdef USE_MPI
     ts = mpi_wtime()
-#endif
-
-#ifdef USE_MPI
     allocate(J_ee_local(size(J_ee)))
     J_ee_local = 0.0d0
 #endif
@@ -539,7 +528,11 @@ contains
 !$OMP DO SCHEDULE(DYNAMIC) COLLAPSE(1) 
         ! we are using dynamic scheduling since the ab>=cd condition creates an imbalance in the workloads
         ! furthermore, we are using collapse(1) because of the non-rectangular do-loop (a=b,aotot)
-        do b=rank+1,aotot,nprocs !was b=1,aotot in serial/omp impl. before
+#ifdef USE_MPI
+        do b=rank+1,aotot,nprocs
+#else
+        do b=1,aotot 
+#endif
             do a=b,aotot
                 ab = (a*(a-1)/2)+b
                 do d=1,aotot
@@ -597,9 +590,6 @@ contains
 #ifdef USE_MPI
     call MPI_Reduce( J_ee_local, J_ee, size(J_ee), MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr )
     deallocate(J_ee_local)
-#endif
-
-#ifdef USE_MPI
     te = mpi_wtime()
     dt = te - ts
     if (rank == 0) then
