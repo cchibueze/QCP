@@ -51,3 +51,4 @@
 *.c
 *.cmake
 *.bin
+*.old

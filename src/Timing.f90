@@ -27,6 +27,9 @@
 !#######################################################################################################################!   
 module Timing
 use Parallel
+#ifdef USE_MPI
+use mpi
+#endif
 implicit none
 save
 private
@@ -40,11 +43,15 @@ public :: timer
         !$ use omp_lib
         real(8), intent(out) :: time
 
+#ifdef USE_MPI
+        time = mpi_wtime()
+#else
         if (omp) then
             !$ time = omp_get_wtime()
         else
             call cpu_time(time)
         endif
+#endif
             
     end subroutine timer
 

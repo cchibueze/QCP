@@ -504,15 +504,35 @@ contains
     subroutine J_ee_calc()
     use integral_tensors
     !$ use omp_lib
+#ifdef USE_MPI
+    use mpi
+#endif
     type (ao) :: ao1,ao2,ao3,ao4
     integer :: a,b,c,d,ab,cd,k,l,r,s
     real (kind = 8) :: eri!,t,tt,ts,tf!,electron_repulsion
+#ifdef USE_MPI
+    real (kind = 8) :: te, ts, dt
+    real(kind = 8), allocatable :: J_ee_local(:)
+    integer :: ierr, rank, nprocs
+#endif
+
+#ifdef USE_MPI
+    CALL MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, ierr)
+    CALL MPI_COMM_RANK(MPI_COMM_WORLD, rank  , ierr)
+    ts = mpi_wtime()
+    allocate(J_ee_local(size(J_ee)))
+    J_ee_local = 0.0d0
+#endif
 
 !$OMP PARALLEL DEFAULT(NONE) SHARED(aotot,aos,J_ee) PRIVATE(a,b,c,d,ab,cd,ao1,ao2,ao3,ao4,k,l,r,s,eri)
 !$OMP DO SCHEDULE(DYNAMIC) COLLAPSE(1) 
         ! we are using dynamic scheduling since the ab>=cd condition creates an imbalance in the workloads
         ! furthermore, we are using collapse(1) because of the non-rectangular do-loop (a=b,aotot)
-        do b=1,aotot
+#ifdef USE_MPI
+        do b=rank+1,aotot,nprocs
+#else
+        do b=1,aotot 
+#endif
             do a=b,aotot
                 ab = (a*(a-1)/2)+b
                 do d=1,aotot
@@ -540,6 +560,16 @@ contains
                                     enddo
                                 enddo
                             enddo
+#ifdef USE_MPI
+                            J_ee_local(a + aotot*( (b-1) + aotot*( (c-1) + aotot*(d-1) ) )) = eri
+                            J_ee_local(b + aotot*( (a-1) + aotot*( (c-1) + aotot*(d-1) ) )) = eri
+                            J_ee_local(b + aotot*( (a-1) + aotot*( (d-1) + aotot*(c-1) ) )) = eri
+                            J_ee_local(a + aotot*( (b-1) + aotot*( (d-1) + aotot*(c-1) ) )) = eri
+                            J_ee_local(c + aotot*( (d-1) + aotot*( (a-1) + aotot*(b-1) ) )) = eri
+                            J_ee_local(c + aotot*( (d-1) + aotot*( (b-1) + aotot*(a-1) ) )) = eri
+                            J_ee_local(d + aotot*( (c-1) + aotot*( (b-1) + aotot*(a-1) ) )) = eri
+                            J_ee_local(d + aotot*( (c-1) + aotot*( (a-1) + aotot*(b-1) ) )) = eri
+#else
                             J_ee(a + aotot*( (b-1) + aotot*( (c-1) + aotot*(d-1) ) )) = eri
                             J_ee(b + aotot*( (a-1) + aotot*( (c-1) + aotot*(d-1) ) )) = eri
                             J_ee(b + aotot*( (a-1) + aotot*( (d-1) + aotot*(c-1) ) )) = eri
@@ -548,6 +578,7 @@ contains
                             J_ee(c + aotot*( (d-1) + aotot*( (b-1) + aotot*(a-1) ) )) = eri
                             J_ee(d + aotot*( (c-1) + aotot*( (b-1) + aotot*(a-1) ) )) = eri
                             J_ee(d + aotot*( (c-1) + aotot*( (a-1) + aotot*(b-1) ) )) = eri
+#endif
                         endif
                     enddo
                 enddo
@@ -555,6 +586,18 @@ contains
         enddo
 !$OMP END DO
 !$OMP END PARALLEL
+
+#ifdef USE_MPI
+    call MPI_Reduce( J_ee_local, J_ee, size(J_ee), MPI_DOUBLE_PRECISION, MPI_SUM, 0, MPI_COMM_WORLD, ierr )
+    deallocate(J_ee_local)
+    te = mpi_wtime()
+    dt = te - ts
+    if (rank == 0) then
+        print *,  &
+            'J_ee_calc wall time = ', dt, ' seconds'
+    endif
+#endif
+
     end subroutine J_ee_calc
 
     

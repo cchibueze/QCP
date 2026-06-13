@@ -94,6 +94,7 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
     use nuclei_data
     use atomic_data
     use ao_data
+    use Print_module
     real (kind = 8) , parameter :: pi=3.14159265359
     integer :: i,j,k,l,ios,nuc_type_no,num_cont,junk
     character (len=30) :: scnt,pcnt,dcnt,fcnt
@@ -384,11 +385,12 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
         nmo = nao
         nocc = int(eltot/2.0d0)
         nvir = nao - nocc
-        print *, 'number of AOs: ',nao
-        print *, 'number of MOs: ',nmo
-        print *, 'number of occupied orbitals: ',nocc
-        print *, 'number of virtual orbitals: ',nvir
-        
+
+        call printtext('number of AOs: ',int=nao)
+        call printtext('number of MOs: ',int=nmo)
+        call printtext('number of occupied orbitals: ',int=nocc)
+        call printtext('number of virtual orbitals: ',int=nvir)
+
     end subroutine get_aos
     
     !#######################################################################################################################! 
@@ -416,7 +418,7 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
     use ao_data
     integer :: a,b,no=0
         open(unit=77,file='../../OUTPUT.dat')
-        print *, eltot
+        !print *, eltot
         if ( (real(eltot)/2 - ceiling(real(eltot)/2) /= 0) .and. (real(multiplicity)/2 - ceiling(real(multiplicity)/2) /= 0) ) then
             write(77,*) 'Wrongly chosen multiplicity for the number of electrons.'
             write(77,*) 'Odd multiplicity for even number of electrons and vice versa.' 
@@ -428,7 +430,7 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
         endif
 
         
-        print *,'Calculation Running; Check Output file when finished!'
+        call printtext('Calculation Running; Check Output file when finished!')
         
         write(77,*) ''
         call bigblockheader('QCP PROGRAM OUTPUT')

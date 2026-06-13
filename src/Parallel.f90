@@ -43,6 +43,7 @@ integer :: num_threads
 
 
     subroutine set_omp_variables(num_threads_in)
+        use Print_module
         !$ use omp_lib
         integer, intent(in) :: num_threads_in
 
@@ -50,9 +51,9 @@ integer :: num_threads
             num_threads = num_threads_in
             !$ omp = .true.
             if (omp) then
-                print *, 'OpenMP parallelization is enabled!!'
+                call printtext('OpenMP parallelization is enabled!!')
             else
-                print *, 'OpenMP parallelization is disabled!!'
+                call printtext('OpenMP parallelization is disabled!!')
             endif
             if (omp) then
                 !$ call omp_set_num_threads(num_threads)

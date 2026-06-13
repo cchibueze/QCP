@@ -28,6 +28,9 @@
 module SCF_routines
 use parallel
 !$ use omp_lib
+#if USE_MPI
+use MPI
+#endif
 use Timing
 use result_data
 use integral_tensors
@@ -92,12 +95,12 @@ contains
         UT = transpose(U)   
         !print *, U
         
+
         call timer(ts)
         call J_ee_calc()
-        print *, 'done with calculating two-electron integrals'
         call timer(tf)
-        print *, 'Time taken to calculate two-electron integrals:', tf - ts, 'seconds'
 
+        call printtext('Done calculate two-electron integrals in (s):', r=(tf - ts))
 
         ! bare nuclei Hamiltonian as initial Fock matrix
         

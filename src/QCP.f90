@@ -67,6 +67,10 @@ program QCP
 !parallelization
 !$ use omp_lib
 use Parallel
+#ifdef USE_MPI
+use mpi
+#endif
+
 use Timing
 
 !initialization + system setup
@@ -105,15 +109,20 @@ real (kind = 8) :: Ef
 real (kind = 8) :: tf,ts
 character (len=30) :: filename
 integer :: ghf=0
+#ifdef USE_MPI
+integer :: ierr
+#endif
 
     !=======================================================================================================================!
     !                                               SETUP PARALLELIZATION                                                   !
     !=======================================================================================================================!
 
-    !specify the number of threads to use for parallelization
+    !specify the number of threads or processes to use for parallelization
+#ifdef USE_MPI
+    call MPI_Init(ierr)
+#endif
     call set_omp_variables(8)
     call timer(ts)
-
 
 
     !=======================================================================================================================!
@@ -165,7 +174,7 @@ integer :: ghf=0
     !=======================================================================================================================!
     if (sp == 1) then
         if (multiplicity == 1) then
-            print *, 'Doing HF!'
+            call printtext('Doing HF!')
             call HFC(1)
         else if (ghf == 1) then
             print *, 'Doing GHF!'
@@ -247,7 +256,7 @@ integer :: ghf=0
 
     call timer(tf)
 
-    print *, 'Time taken by program:', tf - ts, 'seconds'
+    call printtext('Time taken by program (s):', r=tf - ts)
 
     write(77,32) "total run time:", &
     tf - ts, "seconds"
@@ -256,5 +265,10 @@ integer :: ghf=0
     write(77,*)'======================================================================='
     write(77,*)''
     close(77)
+
+#ifdef USE_MPI
+    call MPI_Finalize(ierr)
+#endif
+
 end program QCP
 !#######################################################################################################################! 
