@@ -132,7 +132,7 @@ public :: get_nuclei, get_aos, normalize_aos, print_mol_data
     type (ao) , allocatable , dimension(:) :: aos_tmp
         aotot = 0
         allocate(aos(aotot))
-        file_name = './../../bases/'//trim(basis)//'.bas'
+        file_name = './../../bases/'//trim(basis)
 
         open(2, file = file_name, iostat=ios,status='old')
         if (ios/=0) then
